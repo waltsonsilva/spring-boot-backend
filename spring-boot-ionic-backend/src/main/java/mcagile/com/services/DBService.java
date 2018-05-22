@@ -20,6 +20,7 @@ import mcagile.com.domain.PagamentoComCartao;
 import mcagile.com.domain.Pedido;
 import mcagile.com.domain.Produto;
 import mcagile.com.domain.enums.EstadoPagamento;
+import mcagile.com.domain.enums.Perfil;
 import mcagile.com.domain.enums.TipoCliente;
 import mcagile.com.repositories.CategoriaRepository;
 import mcagile.com.repositories.CidadeRepository;
@@ -125,15 +126,21 @@ public class DBService {
 		cidadeRepository.saveAll(Arrays.asList(ci1, ci2, ci3));
 
 		Cliente cli1 = new Cliente(null, "Maria Silva", "waltson.silva@hotmail.com", "888888888", TipoCliente.PESSOAJURIDICA,pe.encode("123"));
-
+		Cliente cli2 = new Cliente(null, "Ana Silva", "waltson.dasilva@gmail.com", "888888888", TipoCliente.PESSOAJURIDICA,pe.encode("123"));
+		cli2.addPerfil(Perfil.ADMIN);
+		
 		cli1.getTelefones().addAll(Arrays.asList("123123213213", "993432423"));
+		cli2.getTelefones().addAll(Arrays.asList("32323232", "99343286786"));
 		Endereco e1 = new Endereco(null, "Rua Flores", "300", "Apto 303", "Jardias", "3113123213", cli1, ci1);
-		Endereco e2 = new Endereco(null, "Rua Flores", "300", "Apto 303", "Jardias", "3113123213", cli1, ci2);
+		Endereco e2 = new Endereco(null, "Rua Flores", "300", "Apto 301", "Jardias", "3113123213", cli1, ci2);
+		Endereco e3 = new Endereco(null, "Rua Flores", "300", "Apto 302", "Jardias", "3113123213", cli2, ci2);
 
 		cli1.getEnderecos().addAll(Arrays.asList(e1, e2));
+		cli1.getEnderecos().addAll(Arrays.asList(e3));
 
-		clienteRepository.saveAll(Arrays.asList(cli1));
-		enderecoRepository.saveAll(Arrays.asList(e1, e2));
+
+		clienteRepository.saveAll(Arrays.asList(cli1,cli2));
+		enderecoRepository.saveAll(Arrays.asList(e1, e2,e3));
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
