@@ -15,12 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import mcagile.com.domain.Cidade;
 import mcagile.com.domain.Cliente;
 import mcagile.com.domain.Endereco;
+import mcagile.com.domain.enums.Perfil;
 import mcagile.com.domain.enums.TipoCliente;
 import mcagile.com.dto.ClienteDTO;
 import mcagile.com.dto.ClienteNewDto;
 import mcagile.com.repositories.CidadeRepository;
 import mcagile.com.repositories.ClienteRepository;
 import mcagile.com.repositories.EnderecoRepository;
+import mcagile.com.security.UserSS;
+import mcagile.com.services.exception.AuthorizationException;
 import mcagile.com.services.exception.DateIntegrityException;
 import mcagile.com.services.exception.ObjectNotFoundException;
 
@@ -38,6 +41,11 @@ public class ClienteService {
 	private BCryptPasswordEncoder pe;
 
 	public Cliente find(Integer id) {
+		UserSS user = UserService.authenticated();
+		if(user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+		
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
 				"Objetod não encontrado! ID: " + id + ", Tipo: " + Cliente.class.getName()));
