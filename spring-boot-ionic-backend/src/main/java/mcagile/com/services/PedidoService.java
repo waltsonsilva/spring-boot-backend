@@ -4,9 +4,13 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import mcagile.com.domain.Cliente;
 import mcagile.com.domain.ItemPedido;
 import mcagile.com.domain.PagamentoComBoleto;
 import mcagile.com.domain.Pedido;
@@ -14,6 +18,8 @@ import mcagile.com.domain.enums.EstadoPagamento;
 import mcagile.com.repositories.ItemPedidoRepository;
 import mcagile.com.repositories.PagamentoRepository;
 import mcagile.com.repositories.PedidoRepository;
+import mcagile.com.security.UserSS;
+import mcagile.com.services.exception.AuthorizationException;
 import mcagile.com.services.exception.ObjectNotFoundException;
 
 @Service
@@ -33,10 +39,10 @@ public class PedidoService {
 
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
-	
+
 	@Autowired
 	private ClienteService clienteService;
-	
+
 	@Autowired
 	private EmailService emailService;
 
@@ -69,5 +75,15 @@ public class PedidoService {
 		itemPedidoRepository.saveAll(obj.getItens());
 		emailService.sendOrderConfirmationEmail(obj);
 		return obj;
+	}
+
+	public Page<Pedido> findPage(Integer page, Integer linePerPage, String ordeBy, String direction) {
+		UserSS user = UserService.authenticated();
+		if (user == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+		PageRequest pageRequest = PageRequest.of(page, linePerPage, Direction.valueOf(direction), ordeBy);
+		Cliente cliente = clienteService.find(user.getId());
+		return repo.findByCliente(cliente, pageRequest);
 	}
 }
